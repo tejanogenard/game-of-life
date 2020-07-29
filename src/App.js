@@ -15,13 +15,19 @@ const operations = [
     [-1, 0]
   ];
 
-function App() {
-  const [grid, setGrid] = useState(() => {
+
+  const buildEmptyGrid = () => {
     const rows = []
     for (let i = 0; i < numRows; i++) {
       rows.push(Array.from(Array(numCols), () => 0))
     }
     return rows
+  }
+
+
+function App() {
+  const [grid, setGrid] = useState(() => {
+    return buildEmptyGrid()
   })
 
   const [running, setRunning] = useState(false)
@@ -72,6 +78,20 @@ function App() {
        }}
       >
         {running ? 'stop' : 'start'}
+      </button>
+      <button onClick={() =>{
+           const rows = []
+           for (let i = 0; i < numRows; i++) {
+             rows.push(Array.from(Array(numCols), () => Math.random() > .8 ? 1: 0))
+           }
+           setGrid(rows)
+      }}>
+          random
+      </button>
+      <button onClick={() =>{
+          setGrid(buildEmptyGrid())
+      }}>
+          clear
       </button>
       <div style={{
         display: 'grid',
