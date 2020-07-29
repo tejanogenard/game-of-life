@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useRef } from 'react';
+import { glider, spaceships, oscillator } from '../src/presets'
 import produce from 'immer'
 
-const numRows = 50;
-const numCols = 50;
+const numRows = 25;
+const numCols = 25;
 
 const operations = [
     [0, 1],
@@ -63,7 +64,6 @@ function App() {
           }
         });
       });
-  
       setTimeout(runSimulation, 100);
     }, [running]);
 
@@ -74,10 +74,8 @@ function App() {
         if(!running){
             runningRef.current = true
             runSimulation()
-        }
-       }}
-      >
-        {running ? 'stop' : 'start'}
+        }}}>
+      {running ? 'stop' : 'start'}
       </button>
       <button onClick={() =>{
            const rows = []
@@ -86,13 +84,15 @@ function App() {
            }
            setGrid(rows)
       }}>
-          random
+        random
       </button>
-      <button onClick={() =>{
-          setGrid(buildEmptyGrid())
-      }}>
-          clear
-      </button>
+      <button onClick={() =>{ setGrid(buildEmptyGrid())}}>clear</button>
+
+      <button onClick={() => setGrid(glider)}><div>Gliders</div></button>
+      <button onClick={() => setGrid(spaceships)}><div>Spaceships</div></button>
+      <button onClick={() => setGrid(oscillator)}><div>Oscillators</div></button>
+
+
       <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${numCols}, 20px`
