@@ -17,6 +17,7 @@ const operations = [
   ];
 
 
+
   const buildEmptyGrid = () => {
     const rows = []
     for (let i = 0; i < numRows; i++) {
@@ -35,13 +36,20 @@ function App() {
   const runningRef = useRef(running)
   runningRef.current = running
 
+  // log the generations 
+  const [ gen, setGen ] = useState(0);
 
-  const runSimulation = useCallback(() => {
+  //set game speed 
+  const [ speed, setSpeed ] = useState(1000)
+
+
+  const runSimulation = useCallback(() => { // simulation function 
     if(!runningRef.current) {
         return
     }
-    // run our game of life 
-    // set our conditions
+
+    setGen(generation => generation + 1)
+
     setGrid(g => {
         return produce(g, gridCopy => {
           for (let i = 0; i < numRows; i++) {
@@ -64,35 +72,14 @@ function App() {
           }
         });
       });
-      setTimeout(runSimulation, 100);
-    }, [running]);
+      setTimeout(runSimulation, speed);
+    }, [speed]);
+
+    console.log(speed)
 
   return (
     <>
-      <button onClick={() => {
-        setRunning(!running)
-        if(!running){
-            runningRef.current = true
-            runSimulation()
-        }}}>
-      {running ? 'stop' : 'start'}
-      </button>
-      <button onClick={() =>{
-           const rows = []
-           for (let i = 0; i < numRows; i++) {
-             rows.push(Array.from(Array(numCols), () => Math.random() > .8 ? 1: 0))
-           }
-           setGrid(rows)
-      }}>
-        random
-      </button>
-      <button onClick={() =>{ setGrid(buildEmptyGrid())}}>clear</button>
-
-      <button onClick={() => setGrid(glider)}><div>Gliders</div></button>
-      <button onClick={() => setGrid(spaceships)}><div>Spaceships</div></button>
-      <button onClick={() => setGrid(oscillator)}><div>Oscillators</div></button>
-
-
+    <div>THE GAME OF LIFE</div>
       <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${numCols}, 20px`
@@ -110,13 +97,44 @@ function App() {
               style={{
                 width: 20,
                 height: 20,
-                backgroundColor: grid[i][k] ? "green" : undefined,
-                border: 'solid 1px black'
+                backgroundColor: grid[i][k] ? "gold" : undefined,
+                border: 'solid 1px black',
+                boxShadow: grid[i][k] ? '0px 0px 50px #663399' : undefined
               }}
             />
           ))
-        )}
+        )}        
       </div>
+
+      <button onClick={() => {
+        setRunning(!running)
+        if(!running){
+            runningRef.current = true
+            runSimulation()
+        }}}>
+      {running ? 'stop' : 'start'}
+      </button>
+
+      <button onClick={() =>{
+           const rows = []
+           for (let i = 0; i < numRows; i++) {
+             rows.push(Array.from(Array(numCols), () => Math.random() > .8 ? 1: 0))
+           }
+           setGrid(rows)
+           setGen(0)
+      }}>
+        random
+      </button>
+
+      <button onClick={() =>{ setGrid(buildEmptyGrid()); setGen(0)}}>clear</button>
+      <button onClick={() => setGrid(glider)}><div>Gliders</div></button>
+      <button onClick={() => setGrid(spaceships)}><div>Spaceships</div></button>
+      <button onClick={() => setGrid(oscillator)}><div>Oscillators</div></button>
+
+      <div className='speed-control'>
+                <button className={speed === 10 ? "current" : undefined} onClick={() => setSpeed(10)}>2x</button>
+            </div>
+      <div>Generation:{gen}</div>
     </>
   );
 }
