@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
+import ReactDOM from 'react-dom';
+import Button from '@material-ui/core/Button';
 import { glider, spaceships, oscillator } from '../src/presets'
 import produce from 'immer'
 
@@ -15,8 +17,6 @@ const operations = [
     [1, 0],
     [-1, 0]
   ];
-
-
 
   const buildEmptyGrid = () => {
     const rows = []
@@ -41,15 +41,14 @@ function App() {
 
   //set game speed 
   const [ speed, setSpeed ] = useState(1000)
+  
 
 
   const runSimulation = useCallback(() => { // simulation function 
     if(!runningRef.current) {
         return
     }
-
     setGen(generation => generation + 1)
-
     setGrid(g => {
         return produce(g, gridCopy => {
           for (let i = 0; i < numRows; i++) {
@@ -62,7 +61,6 @@ function App() {
                   neighbors += g[newI][newK];
                 }
               });
-  
               if (neighbors < 2 || neighbors > 3) {
                 gridCopy[i][k] = 0;
               } else if (g[i][k] === 0 && neighbors === 3) {
@@ -75,17 +73,32 @@ function App() {
       setTimeout(runSimulation, speed);
     }, [speed]);
 
-    console.log(speed)
+
 
   return (
     <>
-    <div>THE GAME OF LIFE</div>
-      <div style={{
+    <h1>THE GAME OF LIFE</h1>
+         
+    <p className="about">
+    1. Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+    </p>
+    <p className="about">
+    2. Any live cell with two or three live neighbours lives on to the next generation.
+    </p>
+    <p className="about">
+    3. Any live cell with more than three live neighbours dies, as if by overpopulation. 
+    </p>
+    <p className="about">
+    4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+    </p>
+    
+      <div className = 'grid' style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${numCols}, 20px`
       }}>
         {grid.map((rows, i) =>
           rows.map((col, k) => (
+            
             <div
               key={`${i} - ${k}`}
               onClick={() => {
@@ -95,27 +108,35 @@ function App() {
                 setGrid(newGrid)
               }}
               style={{
-                width: 20,
+                width: 20, 
                 height: 20,
                 backgroundColor: grid[i][k] ? "gold" : undefined,
-                border: 'solid 1px black',
+                border: 'double .1px white',
                 boxShadow: grid[i][k] ? '0px 0px 50px #663399' : undefined
               }}
             />
           ))
-        )}        
+          
+        )}      
       </div>
 
-      <button onClick={() => {
+    <div className = 'generation-counter'>Generation:{gen}</div>
+
+    <div className = 'gamemode-controls'>
+    <Button variant="outlined" color="secondary"  onClick={() => {
         setRunning(!running)
         if(!running){
             runningRef.current = true
             runSimulation()
         }}}>
       {running ? 'stop' : 'start'}
-      </button>
+      </Button>
+      <Button variant="outlined" color="secondary" onClick={() =>{ setGrid(buildEmptyGrid()); setGen(0)}}>clear</Button> 
+    </div>
 
-      <button onClick={() =>{
+     <div className ="presets">
+      <Button variant="outlined" color="secondary"  
+           onClick={() =>{
            const rows = []
            for (let i = 0; i < numRows; i++) {
              rows.push(Array.from(Array(numCols), () => Math.random() > .8 ? 1: 0))
@@ -124,17 +145,20 @@ function App() {
            setGen(0)
       }}>
         random
-      </button>
+      </Button>
+      
+      <Button variant="outlined" color="secondary" onClick={() => setGrid(glider)}><div>Gliders</div></Button>
+      <Button variant="outlined" color="secondary" onClick={() => setGrid(spaceships)}><div>Spaceships</div></Button>
+      <Button variant="outlined" color="secondary" onClick={() => setGrid(oscillator)}><div>Oscillators</div></Button>
+    </div>
 
-      <button onClick={() =>{ setGrid(buildEmptyGrid()); setGen(0)}}>clear</button>
-      <button onClick={() => setGrid(glider)}><div>Gliders</div></button>
-      <button onClick={() => setGrid(spaceships)}><div>Spaceships</div></button>
-      <button onClick={() => setGrid(oscillator)}><div>Oscillators</div></button>
 
       <div className='speed-control'>
-                <button className={speed === 10 ? "current" : undefined} onClick={() => setSpeed(10)}>2x</button>
-            </div>
-      <div>Generation:{gen}</div>
+          <Button variant="outlined" color="secondary"   onClick={() => setSpeed(1000)}>normal</Button>
+          <Button variant="outlined" color="secondary"   onClick={() => setSpeed(100)}>fast</Button>
+          <Button variant="outlined" color="secondary"   onClick={() => setSpeed(10)}>super fast</Button>
+      </div>
+
     </>
   );
 }
